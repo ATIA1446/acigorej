@@ -233,14 +233,7 @@ public class FileProcessingService {
                               .replaceAll(",+", ",")
                               .replaceAll(";+", ",")
                               .replaceAll("\\|+", ",");
-        
-        // Pattern to match case numbers like SC-17653/22 or CR-647/21
-        // This matches:
-        // - 2-3 uppercase letters
-        // - followed by hyphen
-        // - followed by digits
-        // - followed by slash
-        // - followed by 2-4 digits
+
         String caseNumberPattern = "([A-Z]{2,3}-\\d+/\\d{2,4})";
         
         // Split and join with commas where needed
@@ -368,11 +361,15 @@ public class FileProcessingService {
                 else if (header.contains("zone")) map.put(cell.getColumnIndex(), "zone");
                 else if (header.contains("case")) {
                     if (header.contains("no") || header.contains("number")) map.put(cell.getColumnIndex(), "caseno");
-                    else if (header.contains("lodged")) map.put(cell.getColumnIndex(), "caselodged");
+                    // Removed the caselodged mapping here
                 }
                 else if (header.contains("court")) {
-                    if (header.contains("name")) map.put(cell.getColumnIndex(), "courtname");
-                    else if (header.contains("status")) map.put(cell.getColumnIndex(), "courtstatus");
+                    if (header.contains("name")) {
+                        // This is the new primary mapping for Court
+                        map.put(cell.getColumnIndex(), "courtname");
+                    } else if (header.contains("status")) {
+                        map.put(cell.getColumnIndex(), "courtstatus");
+                    }
                 }
                 else if (header.contains("stage") && header.contains("status")) {
                     map.put(cell.getColumnIndex(), "courtstatus");
@@ -382,6 +379,10 @@ public class FileProcessingService {
                 }
                 else if (header.contains("next") && header.contains("date")) {
                     map.put(cell.getColumnIndex(), "nextdate");
+                }
+                // You can optionally keep caselodged as a fallback
+                else if (header.contains("case") && header.contains("lodged")) {
+                    map.put(cell.getColumnIndex(), "courtname"); // Map to courtname as fallback
                 }
             }
         }
@@ -395,7 +396,7 @@ public class FileProcessingService {
             case "partyname": return "Party Name";
             case "zone": return "Zone";
             case "caseno": return "Case No";
-            case "caselodged": return "Court";
+            case "courtname": return "Court";  // Changed from caselodged to courtname
             case "courtstatus": return "Stage";
             case "previousdate": return "Last Date";
             case "nextdate": return "Next Date";

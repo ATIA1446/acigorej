@@ -7,6 +7,171 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
+        /* Loading Animation Styles */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        
+        .pl {
+            box-shadow: 2em 0 2em rgba(0,0,0,0.2) inset, -2em 0 2em rgba(255,255,255,0.1) inset;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transform: rotateX(30deg) rotateZ(45deg);
+            width: 15em;
+            height: 15em;
+        }
+        .pl, .pl__dot {
+            border-radius: 50%;
+        }
+        .pl__dot {
+            animation-name: shadow;
+            box-shadow: 0.1em 0.1em 0 0.1em #000, 0.3em 0 0.3em rgba(0,0,0,0.5);
+            top: calc(50% - 0.75em);
+            left: calc(50% - 0.75em);
+            width: 1.5em;
+            height: 1.5em;
+            position: absolute;
+        }
+        .pl__dot:before,
+        .pl__dot:after {
+            content: "";
+            display: block;
+            left: 0;
+            width: inherit;
+            position: absolute;
+            animation-iteration-count: infinite;
+        }
+        .pl__dot:before {
+            animation-name: pushInOut1;
+            background-color: var(--bg);
+            border-radius: inherit;
+            box-shadow: 0.05em 0 0.1em rgba(255,255,255,0.2) inset;
+            height: inherit;
+            z-index: 1;
+        }
+        .pl__dot:after {
+            animation-name: pushInOut2;
+            background-color: var(--primary1);
+            border-radius: 0.75em;
+            box-shadow: 0.1em 0.3em 0.2em rgba(255,255,255,0.4) inset, 0 -0.4em 0.2em #333 inset, 0 -1em 0.25em rgba(0,0,0,0.3) inset;
+            bottom: 0;
+            clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+            height: 3em;
+            transform: rotate(-45deg);
+            transform-origin: 50% 2.25em;
+        }
+        
+        .pl__dot:nth-child(1) { transform: rotate(-0deg) translateX(5em) rotate(0deg); z-index: 5; }
+        .pl__dot:nth-child(2) { transform: rotate(-30deg) translateX(5em) rotate(30deg); z-index: 4; }
+        .pl__dot:nth-child(3) { transform: rotate(-60deg) translateX(5em) rotate(60deg); z-index: 3; }
+        .pl__dot:nth-child(4) { transform: rotate(-90deg) translateX(5em) rotate(90deg); z-index: 2; }
+        .pl__dot:nth-child(5) { transform: rotate(-120deg) translateX(5em) rotate(120deg); z-index: 1; }
+        .pl__dot:nth-child(6) { transform: rotate(-150deg) translateX(5em) rotate(150deg); z-index: 1; }
+        .pl__dot:nth-child(7) { transform: rotate(-180deg) translateX(5em) rotate(180deg); z-index: 2; }
+        .pl__dot:nth-child(8) { transform: rotate(-210deg) translateX(5em) rotate(210deg); z-index: 3; }
+        .pl__dot:nth-child(9) { transform: rotate(-240deg) translateX(5em) rotate(240deg); z-index: 4; }
+        .pl__dot:nth-child(10) { transform: rotate(-270deg) translateX(5em) rotate(270deg); z-index: 5; }
+        .pl__dot:nth-child(11) { transform: rotate(-300deg) translateX(5em) rotate(300deg); z-index: 6; }
+        .pl__dot:nth-child(12) { transform: rotate(-330deg) translateX(5em) rotate(330deg); z-index: 6; }
+        
+        .pl__dot, .pl__dot:before, .pl__dot:after {
+            animation-duration: 2s;
+        }
+        
+        .pl__dot:nth-child(1), .pl__dot:nth-child(1):before, .pl__dot:nth-child(1):after { animation-delay: -0s; }
+        .pl__dot:nth-child(2), .pl__dot:nth-child(2):before, .pl__dot:nth-child(2):after { animation-delay: -0.1667s; }
+        .pl__dot:nth-child(3), .pl__dot:nth-child(3):before, .pl__dot:nth-child(3):after { animation-delay: -0.3333s; }
+        .pl__dot:nth-child(4), .pl__dot:nth-child(4):before, .pl__dot:nth-child(4):after { animation-delay: -0.5s; }
+        .pl__dot:nth-child(5), .pl__dot:nth-child(5):before, .pl__dot:nth-child(5):after { animation-delay: -0.6667s; }
+        .pl__dot:nth-child(6), .pl__dot:nth-child(6):before, .pl__dot:nth-child(6):after { animation-delay: -0.8333s; }
+        .pl__dot:nth-child(7), .pl__dot:nth-child(7):before, .pl__dot:nth-child(7):after { animation-delay: -1s; }
+        .pl__dot:nth-child(8), .pl__dot:nth-child(8):before, .pl__dot:nth-child(8):after { animation-delay: -1.1667s; }
+        .pl__dot:nth-child(9), .pl__dot:nth-child(9):before, .pl__dot:nth-child(9):after { animation-delay: -1.3333s; }
+        .pl__dot:nth-child(10), .pl__dot:nth-child(10):before, .pl__dot:nth-child(10):after { animation-delay: -1.5s; }
+        .pl__dot:nth-child(11), .pl__dot:nth-child(11):before, .pl__dot:nth-child(11):after { animation-delay: -1.6667s; }
+        .pl__dot:nth-child(12), .pl__dot:nth-child(12):before, .pl__dot:nth-child(12):after { animation-delay: -1.8333s; }
+        
+        .pl__text {
+            font-size: 0.75em;
+            max-width: 5rem;
+            position: relative;
+            text-shadow: 0 0 0.1em rgba(255,255,255,0.5);
+            transform: rotateZ(-45deg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .pl__text img {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        
+        @keyframes shadow {
+            from {
+                animation-timing-function: ease-in;
+                box-shadow: 0.1em 0.1em 0 0.1em #000, 0.3em 0 0.3em rgba(0,0,0,0.3);
+            }
+            25% {
+                animation-timing-function: ease-out;
+                box-shadow: 0.1em 0.1em 0 0.1em #000, 0.8em 0 0.8em rgba(0,0,0,0.5);
+            }
+            50%, to {
+                box-shadow: 0.1em 0.1em 0 0.1em #000, 0.3em 0 0.3em rgba(0,0,0,0.3);
+            }
+        }
+        
+        @keyframes pushInOut1 {
+            from {
+                animation-timing-function: ease-in;
+                background-color: var(--bg);
+                transform: translate(0,0);
+            }
+            25% {
+                animation-timing-function: ease-out;
+                background-color: var(--primary2);
+                transform: translate(-71%,-71%);
+            }
+            50%, to {
+                background-color: var(--bg);
+                transform: translate(0,0);
+            }
+        }
+        
+        @keyframes pushInOut2 {
+            from {
+                animation-timing-function: ease-in;
+                background-color: var(--bg);
+                clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+            }
+            25% {
+                animation-timing-function: ease-out;
+                background-color: var(--primary1);
+                clip-path: polygon(0 25%, 100% 25%, 100% 100%, 0 100%);
+            }
+            50%, to {
+                background-color: var(--bg);
+                clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+            }
+        }
+
         /* Cinematic Window Opening Animation */
         .cinematic-curtains {
             position: fixed;
@@ -17,7 +182,6 @@
             z-index: 1000;
             overflow: hidden;
         }
-        
         .curtain {
             position: absolute;
             top: 0;
@@ -26,19 +190,16 @@
             background-color: #1a1a2e;
             transition: all 3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
-        
         .curtain-left {
             left: 0;
             transform-origin: left center;
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
-        
         .curtain-right {
             right: 0;
             transform-origin: right center;
             box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
-        
         .window-shutter {
             position: absolute;
             top: 50%;
@@ -54,17 +215,14 @@
                 shutterExpand 2s ease-in-out forwards,
                 shutterFade 1s ease-in forwards 2s;
         }
-        
         @keyframes shutterExpand {
             0% { width: 0; height: 0; opacity: 0; }
             50% { opacity: 0.8; }
             100% { width: 200vmax; height: 200vmax; opacity: 0.8; }
         }
-        
         @keyframes shutterFade {
             to { opacity: 0; }
         }
-        
         .sunlight-beam {
             position: absolute;
             top: 0;
@@ -80,18 +238,15 @@
             z-index: 1002;
             animation: beamGrow 3s ease-out forwards 2.5s;
         }
-        
         @keyframes beamGrow {
             0% { height: 0; opacity: 0; }
             30% { opacity: 1; }
             100% { height: 100%; opacity: 0; }
         }
-        
         .content-reveal {
             opacity: 0;
             animation: contentFadeIn 2s ease-in forwards 4.5s;
         }
-        
         @keyframes contentFadeIn {
             to { opacity: 1; }
         }
@@ -121,6 +276,10 @@
             transition: all 0.3s;
         }
         :root, [data-bs-theme="light"] {
+            --bg: hsl(223,10%,90%);
+            --fg: hsl(223,10%,30%);
+            --primary1: hsl(223,90%,55%);
+            --primary2: hsl(223,90%,65%);
             --welcome-bg-start: #f5f7fa;
             --welcome-bg-end: #c3cfe2;
             --welcome-card-bg: white;
@@ -131,8 +290,11 @@
             --btn-start-hover-bg: #3a5bc7;
             --feature-icon-color: #4e73df;
         }
-
         [data-bs-theme="dark"] {
+            --bg: hsl(223,10%,30%);
+            --fg: hsl(223,10%,90%);
+            --primary1: hsl(223,90%,55%);
+            --primary2: hsl(223,90%,65%);
             --welcome-bg-start: #1a1a2e;
             --welcome-bg-end: #16213e;
             --welcome-card-bg: #2a2a3a;
@@ -160,7 +322,6 @@
             align-items: center;
             background: linear-gradient(135deg, var(--welcome-bg-start) 0%, var(--welcome-bg-end) 100%);
         }
-        
         .welcome-card {
             width: 90%;
             max-width: 600px;
@@ -171,26 +332,24 @@
             background-color: var(--welcome-card-bg);
             transform: scale(0.95);
             animation: cardFinalAppear 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 5s;
+            opacity: 0;
         }
-        
+    
         @keyframes cardFinalAppear {
             from { transform: scale(0.95); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-
         .welcome-icon {
             font-size: 80px;
             color: var(--welcome-icon-color);
             margin-bottom: 20px;
             animation: iconPulse 2s infinite ease-in-out 6s;
         }
-        
         @keyframes iconPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-
         .welcome-title {
             color: var(--welcome-title-color);
             margin-bottom: 15px;
@@ -227,35 +386,51 @@
             margin-right: 10px;
             font-size: 20px;
         }
+        .loading-text {
+    animation: fadeIn 1.5s ease-in-out forwards;
+    opacity: 0;
+}
 
-        /* Light theme variables */
-        :root, [data-bs-theme="light"] {
-            --welcome-bg-start: #f5f7fa;
-            --welcome-bg-end: #c3cfe2;
-            --welcome-card-bg: white;
-            --welcome-icon-color: #4e73df;
-            --welcome-title-color: #2c3e50;
-            --welcome-text-color: #7f8c8d;
-            --btn-start-bg: #4e73df;
-            --btn-start-hover-bg: #3a5bc7;
-            --feature-icon-color: #4e73df;
-        }
-
-        /* Dark theme variables */
-        [data-bs-theme="dark"] {
-            --welcome-bg-start: #1a1a2e;
-            --welcome-bg-end: #16213e;
-            --welcome-card-bg: #2a2a3a;
-            --welcome-icon-color: #6c8dfa;
-            --welcome-title-color: #f8f9fa;
-            --welcome-text-color: #adb5bd;
-            --btn-start-bg: #6c8dfa;
-            --btn-start-hover-bg: #5a7df0;
-            --feature-icon-color: #6c8dfa;
-        }
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+.welcome-logo {
+    width: 180px; /* Adjust size as needed */
+    height: 180px; /* Adjust size as needed */
+    margin-bottom: 20px;
+    object-fit: contain; /* Ensures the image maintains its aspect ratio */
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.1)); /* Optional: adds a subtle shadow */
+}
     </style>
 </head>
 <body>
+    <!-- Loading Animation -->
+    <div class="loading-container" id="loadingAnimation">
+        <div class="pl">
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__dot"></div>
+            <div class="pl__text">
+                <img th:src="@{/images/circular_logo.png}" alt="ACI Godrej Logo">
+                
+            </div>
+        </div>
+		   <!-- Text at bottom of loading container -->
+    <div class="loading-text" style="position: absolute; bottom: 20%; width: 100%; text-align: center; color: white; font-size: 24px; font-weight: bold; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
+        Statement of Case Generator
+    </div>
+    
+    </div>
+	
     <!-- Theme Toggle Button -->
     <div class="theme-toggle">
         <button class="theme-toggle-btn" id="themeToggle">
@@ -275,64 +450,62 @@
     <!-- Main Content -->
     <div class="welcome-container" th:classappend="${showAnimation} ? 'content-reveal' : ''">
         <div class="welcome-card">
-            <i class="bi bi-folder2-open welcome-icon"></i>
-            <h1 class="welcome-title">Welcome to File Processing System</h1>
-            <p class="welcome-text">Upload your files and let our system process them efficiently</p>
+              <img th:src="@{/images/circular_logo.png}" alt="ACI Godrej Logo" class="welcome-logo">
+            <h1 class="welcome-title">Welcome to ACI Godrej Excel Automation</h1>
+            <p class="welcome-text">Upload your Excel files to automatically generate Statement of Case documents</p>
             <a th:href="@{/upload}" class="btn-start">Get Started</a>
-            
             <div class="features">
                 <div class="feature-item">
                     <i class="bi bi-check-circle-fill feature-icon"></i>
-                    <span>Easy file upload and processing</span>
+                    <span>Automated document generation</span>
                 </div>
                 <div class="feature-item">
                     <i class="bi bi-check-circle-fill feature-icon"></i>
-                    <span>Secure data handling</span>
+                    <span>Standardized formatting</span>
                 </div>
                 <div class="feature-item">
                     <i class="bi bi-check-circle-fill feature-icon"></i>
-                    <span>Quick results</span>
+                    <span>Time-saving solution</span>
                 </div>
             </div>
         </div>
     </div>
+        <!-- Developer Credit -->
+    <div class="developer-credit" style="position: fixed; bottom: 10px; right: 10px; color: var(--welcome-text-color); font-size: 12px; z-index: 100;">
+        Developed by <a href="https://missionxor.github.io/XoRportfolio.github.io/" target="_blank" style="color: var(--feature-icon-color);">Aminul</a>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:if="${showAnimation}">
-        // Animate curtains opening after shutter effect
-        setTimeout(() => {
-            document.querySelector('.curtain-left').style.transform = 'perspective(1000px) rotateY(-100deg)';
-            document.querySelector('.curtain-right').style.transform = 'perspective(1000px) rotateY(100deg)';
-        }, 2000);
-        
-        // Remove animation elements after completion
-        setTimeout(() => {
-            document.querySelector('.cinematic-curtains').style.display = 'none';
-        }, 4500);
-    </script>
-    
- <script>
-        // থিম ম্যানেজমেন্ট স্ক্রিপ্ট
+    <script>
+        // Hide loading animation after page loads
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingAnimation').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loadingAnimation').style.display = 'none';
+                }, 1000);
+            }, 2000); // Show loading animation for at least 2 seconds
+        });
+
+        // Theme Management Script
         const themeToggle = document.getElementById('themeToggle');
         const htmlElement = document.documentElement;
         const iconSun = themeToggle.querySelector('.bi-sun-fill');
         const iconMoon = themeToggle.querySelector('.bi-moon-fill');
 
-        // থিম লোড করুন
+        // Load saved or system theme
         const savedTheme = localStorage.getItem('theme') || 
                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         htmlElement.setAttribute('data-bs-theme', savedTheme);
         updateIcons(savedTheme);
 
-        // থিম পরিবর্তন হ্যান্ডলার
+        // Handle theme toggle click
         themeToggle.addEventListener('click', () => {
             const currentTheme = htmlElement.getAttribute('data-bs-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateIcons(newTheme);
-            
-            // অন্যান্য ট্যাব/উইন্ডোকে নোটিফাই করুন
             window.dispatchEvent(new Event('storage'));
         });
 
@@ -346,7 +519,7 @@
             }
         }
 
-        // সিস্টেম থিম পরিবর্তন ডিটেক্ট করুন
+        // Detect system theme change
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if (!localStorage.getItem('theme')) {
                 const newTheme = e.matches ? 'dark' : 'light';
@@ -354,6 +527,19 @@
                 updateIcons(newTheme);
             }
         });
+
+        // Animate curtains opening after shutter effect (if showAnimation is true)
+        if (document.querySelector('.cinematic-curtains')) {
+            setTimeout(() => {
+                document.querySelector('.curtain-left').style.transform = 'perspective(1000px) rotateY(-100deg)';
+                document.querySelector('.curtain-right').style.transform = 'perspective(1000px) rotateY(100deg)';
+            }, 2000);
+
+            // Remove animation elements after completion
+            setTimeout(() => {
+                document.querySelector('.cinematic-curtains').style.display = 'none';
+            }, 4500);
+        }
     </script>
 </body>
 </html>
