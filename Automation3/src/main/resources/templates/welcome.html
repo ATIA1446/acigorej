@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to File Processing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        /* Cinematic Window Opening Animation */
+        .cinematic-curtains {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .curtain {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #1a1a2e;
+            transition: all 3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .curtain-left {
+            left: 0;
+            transform-origin: left center;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .curtain-right {
+            right: 0;
+            transform-origin: right center;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .window-shutter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            background-color: #4e73df;
+            border-radius: 50%;
+            z-index: 1001;
+            opacity: 0;
+            animation: 
+                shutterExpand 2s ease-in-out forwards,
+                shutterFade 1s ease-in forwards 2s;
+        }
+        
+        @keyframes shutterExpand {
+            0% { width: 0; height: 0; opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { width: 200vmax; height: 200vmax; opacity: 0.8; }
+        }
+        
+        @keyframes shutterFade {
+            to { opacity: 0; }
+        }
+        
+        .sunlight-beam {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 0;
+            background: linear-gradient(to bottom, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0) 100%);
+            box-shadow: 0 0 30px 10px rgba(255,255,255,0.3);
+            z-index: 1002;
+            animation: beamGrow 3s ease-out forwards 2.5s;
+        }
+        
+        @keyframes beamGrow {
+            0% { height: 0; opacity: 0; }
+            30% { opacity: 1; }
+            100% { height: 100%; opacity: 0; }
+        }
+        
+        .content-reveal {
+            opacity: 0;
+            animation: contentFadeIn 2s ease-in forwards 4.5s;
+        }
+        
+        @keyframes contentFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Theme mode toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .theme-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--bs-body-color);
+            transition: all 0.3s;
+        }
+        :root, [data-bs-theme="light"] {
+            --welcome-bg-start: #f5f7fa;
+            --welcome-bg-end: #c3cfe2;
+            --welcome-card-bg: white;
+            --welcome-icon-color: #4e73df;
+            --welcome-title-color: #2c3e50;
+            --welcome-text-color: #7f8c8d;
+            --btn-start-bg: #4e73df;
+            --btn-start-hover-bg: #3a5bc7;
+            --feature-icon-color: #4e73df;
+        }
+
+        [data-bs-theme="dark"] {
+            --welcome-bg-start: #1a1a2e;
+            --welcome-bg-end: #16213e;
+            --welcome-card-bg: #2a2a3a;
+            --welcome-icon-color: #6c8dfa;
+            --welcome-title-color: #f8f9fa;
+            --welcome-text-color: #adb5bd;
+            --btn-start-bg: #6c8dfa;
+            --btn-start-hover-bg: #5a7df0;
+            --feature-icon-color: #6c8dfa;
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        [data-bs-theme="dark"] .theme-toggle {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Original content styles */
+        .welcome-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--welcome-bg-start) 0%, var(--welcome-bg-end) 100%);
+        }
+        
+        .welcome-card {
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            background-color: var(--welcome-card-bg);
+            transform: scale(0.95);
+            animation: cardFinalAppear 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 5s;
+        }
+        
+        @keyframes cardFinalAppear {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .welcome-icon {
+            font-size: 80px;
+            color: var(--welcome-icon-color);
+            margin-bottom: 20px;
+            animation: iconPulse 2s infinite ease-in-out 6s;
+        }
+        
+        @keyframes iconPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .welcome-title {
+            color: var(--welcome-title-color);
+            margin-bottom: 15px;
+        }
+        .welcome-text {
+            color: var(--welcome-text-color);
+            margin-bottom: 30px;
+        }
+        .btn-start {
+            background-color: var(--btn-start-bg);
+            color: white;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        .btn-start:hover {
+            background-color: var(--btn-start-hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .features {
+            margin-top: 30px;
+            text-align: left;
+        }
+        .feature-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .feature-icon {
+            color: var(--feature-icon-color);
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        /* Light theme variables */
+        :root, [data-bs-theme="light"] {
+            --welcome-bg-start: #f5f7fa;
+            --welcome-bg-end: #c3cfe2;
+            --welcome-card-bg: white;
+            --welcome-icon-color: #4e73df;
+            --welcome-title-color: #2c3e50;
+            --welcome-text-color: #7f8c8d;
+            --btn-start-bg: #4e73df;
+            --btn-start-hover-bg: #3a5bc7;
+            --feature-icon-color: #4e73df;
+        }
+
+        /* Dark theme variables */
+        [data-bs-theme="dark"] {
+            --welcome-bg-start: #1a1a2e;
+            --welcome-bg-end: #16213e;
+            --welcome-card-bg: #2a2a3a;
+            --welcome-icon-color: #6c8dfa;
+            --welcome-title-color: #f8f9fa;
+            --welcome-text-color: #adb5bd;
+            --btn-start-bg: #6c8dfa;
+            --btn-start-hover-bg: #5a7df0;
+            --feature-icon-color: #6c8dfa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle">
+        <button class="theme-toggle-btn" id="themeToggle">
+            <i class="bi bi-sun-fill d-none"></i>
+            <i class="bi bi-moon-fill"></i>
+        </button>
+    </div>
+
+    <!-- Cinematic Window Opening Animation - Only show if showAnimation is true -->
+    <div class="cinematic-curtains" th:if="${showAnimation}">
+        <div class="curtain curtain-left"></div>
+        <div class="curtain curtain-right"></div>
+        <div class="window-shutter"></div>
+        <div class="sunlight-beam"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="welcome-container" th:classappend="${showAnimation} ? 'content-reveal' : ''">
+        <div class="welcome-card">
+            <i class="bi bi-folder2-open welcome-icon"></i>
+            <h1 class="welcome-title">Welcome to File Processing System</h1>
+            <p class="welcome-text">Upload your files and let our system process them efficiently</p>
+            <a th:href="@{/upload}" class="btn-start">Get Started</a>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <i class="bi bi-check-circle-fill feature-icon"></i>
+                    <span>Easy file upload and processing</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-circle-fill feature-icon"></i>
+                    <span>Secure data handling</span>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-circle-fill feature-icon"></i>
+                    <span>Quick results</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:if="${showAnimation}">
+        // Animate curtains opening after shutter effect
+        setTimeout(() => {
+            document.querySelector('.curtain-left').style.transform = 'perspective(1000px) rotateY(-100deg)';
+            document.querySelector('.curtain-right').style.transform = 'perspective(1000px) rotateY(100deg)';
+        }, 2000);
+        
+        // Remove animation elements after completion
+        setTimeout(() => {
+            document.querySelector('.cinematic-curtains').style.display = 'none';
+        }, 4500);
+    </script>
+    
+ <script>
+        // থিম ম্যানেজমেন্ট স্ক্রিপ্ট
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        const iconSun = themeToggle.querySelector('.bi-sun-fill');
+        const iconMoon = themeToggle.querySelector('.bi-moon-fill');
+
+        // থিম লোড করুন
+        const savedTheme = localStorage.getItem('theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        htmlElement.setAttribute('data-bs-theme', savedTheme);
+        updateIcons(savedTheme);
+
+        // থিম পরিবর্তন হ্যান্ডলার
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcons(newTheme);
+            
+            // অন্যান্য ট্যাব/উইন্ডোকে নোটিফাই করুন
+            window.dispatchEvent(new Event('storage'));
+        });
+
+        function updateIcons(theme) {
+            if (theme === 'dark') {
+                iconSun.classList.remove('d-none');
+                iconMoon.classList.add('d-none');
+            } else {
+                iconSun.classList.add('d-none');
+                iconMoon.classList.remove('d-none');
+            }
+        }
+
+        // সিস্টেম থিম পরিবর্তন ডিটেক্ট করুন
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                htmlElement.setAttribute('data-bs-theme', newTheme);
+                updateIcons(newTheme);
+            }
+        });
+    </script>
+</body>
+</html>

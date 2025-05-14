@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+       :root, [data-bs-theme="light"] {
+            --upload-bg: #fff;
+            --header-color: #2c3e50;
+            --icon-color: #4e73df;
+            --btn-bg: #4e73df;
+            --btn-hover-bg: #3a5bc7;
+            --text-color: #7f8c8d;
+        }
+
+        [data-bs-theme="dark"] {
+            --upload-bg: #2a2a3a;
+            --header-color: #f8f9fa;
+            --icon-color: #6c8dfa;
+            --btn-bg: #6c8dfa;
+            --btn-hover-bg: #5a7df0;
+            --text-color: #adb5bd;
+        }
+        .upload-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .upload-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        .upload-icon {
+            font-size: 50px;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        .form-control-file {
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .btn-upload {
+            background-color: #3498db;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            font-weight: bold;
+        }
+        .btn-upload:hover {
+            background-color: #2980b9;
+        }
+        .instructions {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .btn-back {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-container">
+            <div class="upload-header">
+                <div class="upload-icon">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                </div>
+                <h2>Upload Your Excel File</h2>
+                <p>Please select the file you want to process</p>
+            </div>
+            
+            <form th:action="@{/process}" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="mb-3">
+                    <input type="file" class="form-control-file" id="file" name="file" accept=".xlsx,.xls" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-upload">
+                        <i class="bi bi-upload"></i> Process File
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-3">
+                <a href="/" class="btn btn-outline-secondary btn-back">
+                    <i class="bi bi-arrow-left"></i> Back to Welcome
+                </a>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Note:</strong> Only Excel files (.xlsx, .xls) are accepted.</p>
+                <p>The file should contain the required columns as per the template.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    
+    const htmlElement = document.documentElement;
+    const setTheme = () => {
+        const savedTheme = localStorage.getItem('theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        htmlElement.setAttribute('data-bs-theme', savedTheme);
+    };
+
+    // প্রথম লোডে থিম সেট করুন
+    setTheme();
+
+    // অন্যান্য ট্যাব থেকে থিম পরিবর্তন শুনুন
+    window.addEventListener('storage', setTheme);
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Please select a file to upload');
+                return false;
+            }
+            
+            const file = fileInput.files[0];
+            const validExtensions = ['xlsx', 'xls'];
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            
+            if (!validExtensions.includes(fileExt)) {
+                e.preventDefault();
+                alert('Please upload a valid Excel file (.xlsx or .xls)');
+                return false;
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        });
+    </script>
+</body>
+</html>

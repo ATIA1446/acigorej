@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processed Data Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+     :root, [data-bs-theme="light"] {
+            --card-bg: #fff;
+            --text-color: #2c3e50;
+            --header-bg: #f8f9fa;
+        }
+
+        [data-bs-theme="dark"] {
+            --card-bg: #2a2a3a;
+            --text-color: #f8f9fa;
+            --header-bg: #3a3a4a;
+        }
+        .preview-container {
+            max-width: 95%;
+            margin: 30px auto;
+        }
+        .file-info-card {
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .data-table {
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .table-responsive {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn-download {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid preview-container">
+        <div class="card file-info-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Processed File Preview
+                </h5>
+                <p class="card-text">
+                    <strong>File Name:</strong> <span th:text="${fileName}"></span>
+                </p>
+                <p class="card-text text-muted">
+                    Please review the processed data before downloading
+                </p>
+            </div>
+        </div>
+
+        <div class="card data-table">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th th:each="header : ${headers}" th:text="${header}">Header</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="row : ${data}">
+                                <td th:each="header : ${headers}" th:text="${row.get(header)}">Value</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="action-buttons">
+                    <a th:href="@{/}" class="btn btn-back">
+                        <i class="bi bi-arrow-left"></i> Back to Upload
+                    </a>
+                    <a th:href="@{/download}" class="btn btn-download">
+                        <i class="bi bi-download"></i> Download Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    
+    <script>
+        // একই থিম সেটআপ স্ক্রিপ্ট
+        const htmlElement = document.documentElement;
+        const setTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 
+                             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            htmlElement.setAttribute('data-bs-theme', savedTheme);
+        };
+        setTheme();
+        window.addEventListener('storage', setTheme);
+    </script>
+</body>
+</html>
