@@ -107,13 +107,14 @@ public class FileProcessingService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Processed Data");
 
-        // Create styles
+        // Define styles
         CellStyle wrapStyle = workbook.createCellStyle();
         wrapStyle.setWrapText(true);
-        wrapStyle.setVerticalAlignment(VerticalAlignment.TOP); // Align to top
-        wrapStyle.setAlignment(HorizontalAlignment.LEFT); // Align to left
+        wrapStyle.setVerticalAlignment(VerticalAlignment.TOP);
+        wrapStyle.setAlignment(HorizontalAlignment.LEFT);
 
         CellStyle defaultStyle = workbook.createCellStyle();
+        defaultStyle.setWrapText(false); // Critical: no wrap here
         defaultStyle.setVerticalAlignment(VerticalAlignment.TOP);
         defaultStyle.setAlignment(HorizontalAlignment.LEFT);
 
@@ -124,44 +125,42 @@ public class FileProcessingService {
         for (int i = 0; i < EXPECTED_HEADERS.size(); i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(EXPECTED_HEADERS.get(i));
-            cell.setCellStyle(defaultStyle);
+            cell.setCellStyle(defaultStyle); // Always apply non-wrap style to headers
         }
 
-        // Process data
+        // Fill data rows
         int rowNum = 1;
         for (Map.Entry<String, Map<String, Set<String>>> entry : partyData.entrySet()) {
             Map<String, Set<String>> record = entry.getValue();
-            
-            // Format case numbers with proper commas
+
             Set<String> formattedCaseNos = record.get("Case No").stream()
-                .map(this::formatCaseNumbers)
-                .collect(Collectors.toSet());
-                
+                    .map(this::formatCaseNumbers)
+                    .collect(Collectors.toSet());
+
             if (formattedCaseNos.isEmpty()) {
                 Row row = sheet.createRow(rowNum++);
-                fillRow(row, record, rowNum-1, briefFactsColIndex, wrapStyle, defaultStyle);
+                fillRow(row, record, rowNum - 1, briefFactsColIndex, wrapStyle, defaultStyle);
                 continue;
             }
-            
+
             List<String> caseNoList = new ArrayList<>(formattedCaseNos);
             List<String> courts = new ArrayList<>(record.get("Court"));
             List<String> stages = new ArrayList<>(record.get("Stage"));
             List<String> lastDates = new ArrayList<>(record.get("Last Date"));
             List<String> nextDates = new ArrayList<>(record.get("Next Date"));
-            
+
             for (int i = 0; i < caseNoList.size(); i++) {
                 Row row = sheet.createRow(rowNum++);
                 Map<String, Set<String>> rowRecord = new LinkedHashMap<>();
-                
+
                 // Copy all fields
                 for (String header : EXPECTED_HEADERS) {
                     rowRecord.put(header, new LinkedHashSet<>(record.get(header)));
                 }
-                
+
                 // Update with current case data
                 rowRecord.get("Case No").clear();
                 rowRecord.get("Case No").add(caseNoList.get(i));
-                
                 if (i < courts.size()) {
                     rowRecord.get("Court").clear();
                     rowRecord.get("Court").add(courts.get(i));
@@ -178,49 +177,49 @@ public class FileProcessingService {
                     rowRecord.get("Next Date").clear();
                     rowRecord.get("Next Date").add(nextDates.get(i));
                 }
-                
-                fillRow(row, rowRecord, rowNum-1, briefFactsColIndex, wrapStyle, defaultStyle);
+
+                fillRow(row, rowRecord, rowNum - 1, briefFactsColIndex, wrapStyle, defaultStyle);
             }
         }
 
-        // Set column widths
+        // Auto-size columns
         for (int i = 0; i < EXPECTED_HEADERS.size(); i++) {
             if (i == briefFactsColIndex) {
-                sheet.setColumnWidth(i, 15000); // Wider for Brief Facts
+                sheet.setColumnWidth(i, 15000); // Fixed width for Brief Facts
             } else {
                 sheet.autoSizeColumn(i);
             }
         }
-        
+
         return workbook;
     }
+    private void fillRow(Row row, Map<String, Set<String>> record, int serialNo,
+            int briefFactsColIndex, CellStyle wrapStyle, CellStyle defaultStyle) {
 
-    private void fillRow(Row row, Map<String, Set<String>> record, int serialNo, 
-                        int briefFactsColIndex, CellStyle wrapStyle, CellStyle defaultStyle) {
-        for (int i = 0; i < EXPECTED_HEADERS.size(); i++) {
-            String header = EXPECTED_HEADERS.get(i);
-            Cell cell = row.createCell(i);
-            
-            if ("Serial No.".equals(header)) {
-                cell.setCellValue(serialNo);
-                cell.setCellStyle(defaultStyle);
-            } else {
-                String value = record.get(header).stream()
-                    .filter(v -> !v.isEmpty())
-                    .collect(Collectors.joining(", "));
-                
-                cell.setCellValue(value);
-                
-                if (i == briefFactsColIndex) {
-                    cell.setCellStyle(wrapStyle);
-                    // Adjust row height for wrapped text
-                    row.setHeightInPoints((value.length() / 50 + 1) * 15);
-                } else {
-                    cell.setCellStyle(defaultStyle);
-                }
-            }
-        }
-    }
+for (int i = 0; i < EXPECTED_HEADERS.size(); i++) {
+String header = EXPECTED_HEADERS.get(i);
+Cell cell = row.createCell(i);
+
+if ("Serial No.".equals(header)) {
+   cell.setCellValue(serialNo);
+   cell.setCellStyle(defaultStyle);
+} else {
+   String value = record.get(header).stream()
+           .filter(v -> !v.isEmpty())
+           .collect(Collectors.joining(", "));
+   cell.setCellValue(value);
+
+   if (i == briefFactsColIndex) {
+       cell.setCellStyle(wrapStyle);
+       // Adjust height based on content length
+       int lines = Math.max(1, value.length() / 60); // ~60 chars per line
+       row.setHeightInPoints(lines * 15); // 15 points per line
+   } else {
+       cell.setCellStyle(defaultStyle);
+   }
+}
+}
+}
 
     private String formatCaseNumbers(String caseNo) {
         if (caseNo == null || caseNo.trim().isEmpty()) {
